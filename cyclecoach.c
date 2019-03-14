@@ -8,6 +8,16 @@
  * anymore. I don't know. I've been coding for 10 hours. I'm tired.
  * Thu Feb 28 21:51:24 CST 2019
  *
+ * I'm thnking I could use it like this:
+ * ./cyclecoach <days> <freshold> <race date>
+ *
+ * to see 1 month ahead, I'd use:
+ * ./cyclecoach 28
+ *
+ * to see 1 week ahead with a freshold of -20 and a race date on 4/20:
+ * ./cyclecoach 7 -20 2019-04-20
+ *
+ * Seems though that this might be overburdening a simple program.
  * */
 
 #include <stdio.h>
@@ -87,6 +97,7 @@ int main(int argc, char **argv){
     if(i > 0)
         i--;
 
+    double curr_ftp = ftp[array_size - 1];
     double ftp_change = ftp[array_size - 1] - ftp[i];
     double ctl_change = ctl[array_size - 1] - ctl[i];
     double atl_change = atl[array_size - 1] - atl[i];
@@ -149,12 +160,17 @@ int main(int argc, char **argv){
     for(j = 0; j < array_size; j++)
         tsb[j] = ctl[j] - atl[j];
 
+    // put in future timestamps.
+    for(j = array_size - APPEND_LEN; j < array_size; j++){
+        ts[j] = ts[j - 1] + 86400;
+    }
+
     // check it.
     printf("\nTIMESTAMP |  NP   | secs |  FTP  | IF  |  TSS  |  CTL  |  ATL  |  TSB\n");
     for(i = 0; i < array_size; i++){
         printf("%-10llu %7.3lf %6u %7.3lf %5.3lf %7.3lf %7.3lf %7.3lf %6.3lf\n", ts[i], np[i], duration[i], ftp[i], ifact[i], tss[i], ctl[i], atl[i], tsb[i]);
         if(i == array_size - APPEND_LEN - 1)
-            puts("-------------------------------FUTURE-------------------------------");
+            puts("--------------------------------FUTURE--------------------------------");
     }
 
     // print a basic report.
@@ -168,5 +184,10 @@ int main(int argc, char **argv){
         printf("FTP: +%.1lf :)\n", ftp_change);
 
     double tss_goal = tss[array_size - APPEND_LEN];
-    printf("\nRecommendation: %.3lf TSS ≈ %.0lf mins at 25 km/h.\n", tss_goal, (tss_goal - 0.58 - (0.161 * 25.0)) / 1.36);
+    double time_goal = (tss_goal - 19.408 - (0.325 * 25.0) + (0.165 * curr_ftp)) / 1.657;
+
+    if(time_goal >= 1)
+        printf("\nRecommendation: %.0lf TSS ≈ %.0lf mins at 25 km/h.\n", tss_goal, time_goal);
+    else
+        puts("\nRecommendation: rest day.");
 }
