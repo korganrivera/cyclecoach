@@ -18,6 +18,7 @@
  * ./cyclecoach 7 -20 2019-04-20
  *
  * Seems though that this might be overburdening a simple program.
+ *
  * */
 
 #include <stdio.h>
@@ -88,38 +89,25 @@ int main(int argc, char **argv){
     }
     fclose(fp);
 
-    // point index at date that is <= 7 days previous.
-    long long unsigned current_time = time(NULL) / 86400 * 86400;
-    for(i = 0; i < array_size; i++){
-        if(ts[i] >= current_time - (604800))
-            break;
-    }
-    if(i > 0)
-        i--;
-
-    double curr_ftp = ftp[array_size - 1];
-    double ftp_change = ftp[array_size - 1] - ftp[i];
-    double ctl_change = ctl[array_size - 1] - ctl[i];
-    double atl_change = atl[array_size - 1] - atl[i];
-    double tsb_change = tsb[array_size - 1] - tsb[i];
-
-
-    // find lowest ever fresh-hold
-    unsigned lowest_freshness = 0;
-    for(i = 0; i < array_size; i++){
-        if(tsb[i] < tsb[lowest_freshness])
-            lowest_freshness = i;
-    }
-
     // get minimum threshold from command line if it's there.
     if(argc == 2){
         // do error check later.
         min_tsb = atof(argv[1]);
     }
-    else
+    else{
+        // find lowest ever fresh-hold
+        unsigned lowest_freshness = 0;
+        for(i = 0; i < array_size; i++){
+            if(tsb[i] < tsb[lowest_freshness])
+                lowest_freshness = i;
+        }
         min_tsb = tsb[lowest_freshness];
+    }
 
     printf("freshhold: %.3lf\n", min_tsb);
+
+    // grab last ftp value before amending array_size.
+    double curr_ftp = ftp[array_size - 1];
 
     // amend array_size to include the future.
     array_size += APPEND_LEN;
@@ -153,7 +141,10 @@ int main(int argc, char **argv){
         tss[k] = i;
     }
 
-    // recalculate atc, ctl, tsb for appendix.
+    // recalculate atc, ctl, tsb for appendix. So this is overkill since 6 out
+    // of 7 of them have already been calculated in the above process, but the
+    // last one won't be correct. Instead of just fixing that last one, I'll
+    // just do this. Makes it easier if I were to adjust APPEND_LEN later.
     rolling_average(tss, ctl, array_size, 42);
     rolling_average(tss, atl, array_size, 7);
     // recalculate tsb.
@@ -174,20 +165,24 @@ int main(int argc, char **argv){
     }
 
     // print a basic report.
-    puts("\n7-DAY REPORT");
-    if(ctl_change > 0)
-        printf("fitness: +%.1lf :)\n", ctl_change);
-    else if(ctl_change <0)
-        printf("fitness: %.1lf :(\n", ctl_change);
+    // fix this: gives wrong report if today doesn't have a workout.
+    // instead, maybe compare last weeks average with this week's.
+    // or, compare linear model of this and last week's fitness.
 
-    if(ftp_change > 0)
-        printf("FTP: +%.1lf :)\n", ftp_change);
+    // If you've already worked out today, then no advice needed. Otherwise,
+    // recommend a tss to aim for today.
 
-    double tss_goal = tss[array_size - APPEND_LEN];
-    double time_goal = (tss_goal - 19.408 - (0.325 * 25.0) + (0.165 * curr_ftp)) / 1.657;
+    long long unsigned current_time = time(NULL) / 86400 * 86400;
+    if(current_time != ts[array_size - APPEND_LEN]){
 
-    if(time_goal >= 1)
-        printf("\nRecommendation: %.0lf TSS ≈ %.0lf mins at 25 km/h.\n", tss_goal, time_goal);
+        double tss_goal = tss[array_size - APPEND_LEN];
+        double time_goal = (tss_goal - 19.408 - (0.325 * 25.0) + (0.165 * curr_ftp)) / 1.657;
+
+        if(time_goal >= 1)
+            printf("\nRecommendation: %.0lf TSS ≈ %.0lf mins at 25 km/h.\n", tss_goal, time_goal);
+        else
+            puts("\nRecommendation: rest day.");
+    }
     else
-        puts("\nRecommendation: rest day.");
+        puts("today is done :)");
 }
