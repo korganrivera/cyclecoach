@@ -24,7 +24,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#define APPEND_LEN 7
+#define APPEND_LEN 10
 #define TSS_LOG_PATH "/home/korgan/code/silvercheetah/tss.log"
 
 int rolling_average(double* array, double* target, unsigned n, unsigned interval){
@@ -164,6 +164,35 @@ int main(int argc, char **argv){
             puts("--------------------------------FUTURE--------------------------------");
     }
 
+    // figure out longest streak.
+    unsigned streak = 0;
+    unsigned longest = 0;
+    for(i = 0; i < array_size - APPEND_LEN; i++){
+        if(tss[i] >= 1.0){
+            streak++;
+        }
+        else{
+            if(streak > longest)
+                longest = streak;
+            streak = 0;
+        }
+    }
+
+    // figure out current streak;
+    streak = 0;
+    for(i = array_size - APPEND_LEN - 1; tss[i] >= 1.0; i--)
+        streak++;
+
+    printf("\nlongest streak: %u\ncurrent streak: %u\n", longest, streak);
+
+    free(duration);
+    free(np);
+    free(ftp);
+    free(ifact);
+    free(ctl);
+    free(atl);
+    free(tsb);
+
     // print a basic report.
     // fix this: gives wrong report if today doesn't have a workout.
     // instead, maybe compare last weeks average with this week's.
@@ -171,9 +200,9 @@ int main(int argc, char **argv){
 
     // If you've already worked out today, then no advice needed. Otherwise,
     // recommend a tss to aim for today.
-
     long long unsigned current_time = time(NULL) / 86400 * 86400;
-    if(current_time != ts[array_size - APPEND_LEN]){
+    long long unsigned last_time = ts[array_size - APPEND_LEN - 1] / 86400 * 86400;
+    if(current_time != last_time){
 
         double tss_goal = tss[array_size - APPEND_LEN];
         double time_goal = (tss_goal - 19.408 - (0.325 * 25.0) + (0.165 * curr_ftp)) / 1.657;
@@ -185,4 +214,6 @@ int main(int argc, char **argv){
     }
     else
         puts("today is done :)");
+    free(ts);
+    free(tss);
 }
