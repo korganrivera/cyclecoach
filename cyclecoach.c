@@ -156,9 +156,15 @@ int main(int argc, char **argv){
         ts[j] = ts[j - 1] + 86400;
     }
 
-    // check it.
+    // display it.
+
+    // Only print the last ~20 entries.
+    unsigned limit = 0;
+    if(array_size > APPEND_LEN * 2)
+        limit = array_size - (APPEND_LEN * 2);
+
     printf("\nTIMESTAMP |  NP   | secs |  FTP  | IF  |  TSS  |  CTL  |  ATL  |  TSB\n");
-    for(i = 0; i < array_size; i++){
+    for(i = limit; i < array_size; i++){
         printf("%-10llu %7.3lf %6u %7.3lf %5.3lf %7.3lf %7.3lf %7.3lf %6.3lf\n", ts[i], np[i], duration[i], ftp[i], ifact[i], tss[i], ctl[i], atl[i], tsb[i]);
         if(i == array_size - APPEND_LEN - 1)
             puts("--------------------------------FUTURE--------------------------------");
