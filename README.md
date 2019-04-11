@@ -10,5 +10,9 @@ I like to pair this with my other code [gitgraph][2] to get this:
 
 ![ccc](ccc.png)
 
+## conky
+You can also push the above heatmap to conky. Check out [gitgraph][2] to see how.
+![conky](conky.png)
+
 [1]: https://github.com/korganrivera/silvercheetah
 [2]: https://github.com/korganrivera/gitgraph
