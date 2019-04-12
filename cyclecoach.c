@@ -210,11 +210,12 @@ int main(int argc, char **argv){
     long long unsigned last_time = ts[array_size - APPEND_LEN - 1] / 86400 * 86400;
     if(current_time != last_time){
 
+        double speed = 27.0;
         double tss_goal = tss[array_size - APPEND_LEN];
-        double time_goal = (tss_goal - 19.408 - (0.325 * 25.0) + (0.165 * curr_ftp)) / 1.657;
+        double time_goal = (tss_goal - 15.543 - 0.0504664*speed + 0.090868*curr_ftp)/1.464918;
 
         if(time_goal >= 1)
-            printf("\nRecommendation: %.0lf TSS ≈ %.0lf mins at 25 km/h.\n", tss_goal, time_goal);
+            printf("\nRecommendation: %.0lf TSS ≈ %.0lf mins at %.1f km/h.\n", tss_goal, time_goal, speed);
         else
             puts("\nRecommendation: rest day.");
     }
