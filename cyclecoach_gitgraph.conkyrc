@@ -72,6 +72,7 @@ color1 = '#a4a4a4',
 
 conky.text = [[
 ${color1}${alignc}C Y C L E C O A C H
+
 ${hr}
-${texeci 60 /home/korgan/bin/ccgg}
+${texeci 10 ~/bin/ccgg}
 ]];
