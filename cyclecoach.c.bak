@@ -7,14 +7,25 @@
  * it needs to be able to adjust the rate at which your tss increases, if that's even a thing
  * anymore. I don't know. I've been coding for 10 hours. I'm tired.
  * Thu Feb 28 21:51:24 CST 2019
+ *
+ * I'm thnking I could use it like this:
+ * ./cyclecoach <days> <freshold> <race date>
+ *
+ * to see 1 month ahead, I'd use:
+ * ./cyclecoach 28
+ *
+ * to see 1 week ahead with a freshold of -20 and a race date on 4/20:
+ * ./cyclecoach 7 -20 2019-04-20
+ *
+ * Seems though that this might be overburdening a simple program.
+ *
  * */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include <string.h>
-
 #define APPEND_LEN 10
+#define TSS_LOG_PATH "/home/korgan/code/silvercheetah/tss.log"
 
 int rolling_average(double* array, double* target, unsigned n, unsigned interval){
     for(unsigned i = 0; i < n; i++){
@@ -37,33 +48,10 @@ int main(int argc, char **argv){
     long long unsigned *ts;
     double *np, *ftp, *ifact, *tss, *ctl, *atl, *tsb;
     double min_tsb;
-    char folder_location[4096];
-
-    // open config file.
-    if((fp = fopen("./config","r")) == NULL){
-        printf("can't find config file. creating...");
-        if((fp = fopen("./config","w")) == NULL){
-            printf("failed.\n");
-            exit(1);
-        }
-
-        // set ./wahoo_csv_files as default location of your csv files.
-        fprintf(fp, "/PATH/TO/TSS/LOG/GOES/HERE/tss.log");
-        fclose(fp);
-        puts("done.\nPut path to tss.log in config file and run cyclecoach again.");
-        exit(0);
-    }
-
-    // get folder location from config file.
-    fgets(folder_location, 4098, fp);
-    fclose(fp);
-    folder_location[strcspn(folder_location, "\n")] = 0;
-
-    printf("tss.log location: %s\n", folder_location);
 
     // open tss.log
-    if((fp = fopen(folder_location, "r")) == NULL){
-        printf("can't open %s\n", folder_location);
+    if((fp = fopen(TSS_LOG_PATH,"r")) == NULL){
+        printf("can't open %s\n", TSS_LOG_PATH);
         exit(1);
     }
 
