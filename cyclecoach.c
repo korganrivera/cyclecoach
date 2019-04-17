@@ -40,9 +40,9 @@ int main(int argc, char **argv){
     char folder_location[4096];
 
     // open config file.
-    if((fp = fopen("./config","r")) == NULL){
-        printf("can't find config file. creating...");
-        if((fp = fopen("./config","w")) == NULL){
+    if((fp = fopen("/home/korgan/code/cyclecoach/config","r")) == NULL){
+        printf("can't find /home/korgan/code/cyclecoach/config file. creating...");
+        if((fp = fopen("/home/korgan/code/cyclecoach/config","w")) == NULL){
             printf("failed.\n");
             exit(1);
         }
@@ -60,7 +60,7 @@ int main(int argc, char **argv){
     folder_location[strcspn(folder_location, "\n")] = 0;
 
     printf("tss.log location: %s\n", folder_location);
-
+    
     // open tss.log
     if((fp = fopen(folder_location, "r")) == NULL){
         printf("can't open %s\n", folder_location);
@@ -200,6 +200,9 @@ int main(int argc, char **argv){
     streak = 0;
     for(i = array_size - APPEND_LEN - 1; tss[i] >= 1.0; i--)
         streak++;
+
+    if(streak > longest)
+        longest = streak;
 
     printf("\nlongest streak: %u\ncurrent streak: %u\n", longest, streak);
 
