@@ -206,6 +206,15 @@ int main(int argc, char **argv){
 
     printf("\nlongest streak: %u\ncurrent streak: %u\n", longest, streak);
 
+    // detect an FTP increase and report if there is one.
+    if(ftp[array_size - APPEND_LEN - 1] > ftp[array_size - APPEND_LEN - 2])
+        puts("New FTP!       🌈");
+
+    // If today's freshhold is the same as the minimum freshhold, then I'll
+    // *assume* that today's workout was the one that set it.
+    if(min_tsb == tsb[array_size - APPEND_LEN - 1])
+        puts("New freshhold! 🌈");
+
     free(duration);
     free(np);
     free(ftp);
