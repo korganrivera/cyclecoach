@@ -59,8 +59,6 @@ int main(int argc, char **argv){
     fclose(fp);
     folder_location[strcspn(folder_location, "\n")] = 0;
 
-    printf("tss.log location: %s\n", folder_location);
-    
     // open tss.log
     if((fp = fopen(folder_location, "r")) == NULL){
         printf("can't open %s\n", folder_location);
