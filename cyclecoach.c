@@ -12,15 +12,22 @@
  *
  * Added some unicode flare when you increase your freshhold and FTP.
  *
- * first working code finished on: Thu Feb 28 21:51:24 CST 2019 
+ * first working code finished on: Thu Feb 28 21:51:24 CST 2019
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
+#include <assert.h>
 
-#define APPEND_LEN 10
+// When you project what your future TSS values should be, you need to add an appendix onto the array read
+// from the file, and calculate the required TSS for each of those future days. Even if you only display
+// a week of requirements, you need more than 1 week to calculate the TSS values correctly. Therefore,
+// APPEND_LEN (where the calculation is done) is 14 days, but the INVISIBLE_INDEX (the number of days
+// on the end of the appendix that are not displayed because the values will be incorrect) is 7.
+#define APPEND_LEN 14
+#define INVISIBLE_APPENDIX 7
 
 int rolling_average(double* array, double* target, unsigned n, unsigned interval){
     for(unsigned i = 0; i < n; i++){
@@ -44,6 +51,8 @@ int main(int argc, char **argv){
     double *np, *ftp, *ifact, *tss, *ctl, *atl, *tsb;
     double min_tsb;
     char folder_location[4096];
+
+    assert(APPEND_LEN >= INVISIBLE_APPENDIX);
 
     // open config file.
     if((fp = fopen("/home/korgan/code/cyclecoach/config","r")) == NULL){
@@ -182,8 +191,11 @@ int main(int argc, char **argv){
     printf("\nTIMESTAMP |  NP   | secs |  FTP  | IF  |  TSS  |  CTL  |  ATL  |  TSB\n");
     for(i = limit; i < array_size; i++){
         printf("%-10llu %7.3lf %6u %7.3lf %5.3lf %7.3lf %7.3lf %7.3lf %6.3lf\n", ts[i], np[i], duration[i], ftp[i], ifact[i], tss[i], ctl[i], atl[i], tsb[i]);
-        if(i == array_size - APPEND_LEN - 1)
+        if(i == array_size - APPEND_LEN - 1){
             puts("--------------------------------FUTURE--------------------------------");
+        }
+        if(i == array_size - INVISIBLE_APPENDIX - 1)
+            break;
     }
 
     // figure out longest streak.
@@ -241,7 +253,6 @@ int main(int argc, char **argv){
         double speed = 27.0;
         double tss_goal = tss[array_size - APPEND_LEN];
         double time_goal = (tss_goal - 15.543 - 0.0504664*speed + 0.090868*curr_ftp)/1.464918;
-
         if(time_goal >= 1)
             printf("\nRecommendation: %.0lf TSS ≈ %.0lf mins at %.1f km/h.\n", tss_goal, time_goal, speed);
         else
