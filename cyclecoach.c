@@ -26,7 +26,7 @@
 // a week of requirements, you need more than 1 week to calculate the TSS values correctly. Therefore,
 // APPEND_LEN (where the calculation is done) is 14 days, but the INVISIBLE_INDEX (the number of days
 // on the end of the appendix that are not displayed because the values will be incorrect) is 7.
-#define APPEND_LEN 14
+#define APPEND_LEN 21
 #define INVISIBLE_APPENDIX 7
 
 int rolling_average(double* array, double* target, unsigned n, unsigned interval){
@@ -258,8 +258,10 @@ int main(int argc, char **argv){
         else
             puts("\nRecommendation: rest day.");
     }
-    else
+    else{
         puts("today is done :)");
+        system("gnuplot /home/korgan/code/cyclecoach/gnuplotscript");
+    }
     free(ts);
     free(tss);
 }
