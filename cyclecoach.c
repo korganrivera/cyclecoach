@@ -252,7 +252,14 @@ int main(int argc, char **argv){
 
         double speed = 27.0;
         double tss_goal = tss[array_size - APPEND_LEN];
-        double time_goal = (tss_goal - 15.543 - 0.0504664*speed + 0.090868*curr_ftp)/1.464918;
+        //double time_goal = (tss_goal - 15.543 - 0.0504664 * speed + 0.090868 * curr_ftp) / 1.464918;
+
+        // using http://www.statskingdom.com/410multi_linear_regression.html
+        // TSS = 14.4832 + 0.02335 * SECS - 0.084 * FTP + 0.07032 * SPEED, so
+        // Secs = (8 * (1050 F - 879 * P + 20 * (625 * T - 9052))) / 2335
+        double time_goal = (8.0 * (1050.0 * curr_ftp - 879.0 * speed + 20.0 * (625.0 * tss_goal - 9052.0))) / 2335.0;
+        time_goal /= 60.0;
+
         if(time_goal >= 1)
             printf("\nRecommendation: %.0lf TSS ≈ %.0lf mins at %.1f km/h.\n", tss_goal, time_goal, speed);
         else

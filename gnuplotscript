@@ -4,8 +4,8 @@ set grid
 set ytics 2.5
 set y2tics 2.5
 plot '/home/korgan/code/silvercheetah/tss.log' every ::1 using 6 with lines title 'TSS' lt rgb "blue", \
-     '/home/korgan/code/silvercheetah/tss.log' every ::1 using 7 with lines title 'ATL: fatigue' lt rgb "red", \
-     '/home/korgan/code/silvercheetah/tss.log' every ::1 using 8 with lines title 'CTL: fitness' lt rgb "orange", \
+     '/home/korgan/code/silvercheetah/tss.log' every ::1 using 7 with lines title 'ATL: fitness' lt rgb "red", \
+     '/home/korgan/code/silvercheetah/tss.log' every ::1 using 8 with lines title 'CTL: fatigue' lt rgb "orange", \
      '/home/korgan/code/silvercheetah/tss.log' every ::1 using 9 with lines title 'TSB: freshness' lt rgb "green"
 pause mouse close
 
