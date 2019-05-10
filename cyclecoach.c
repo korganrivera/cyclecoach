@@ -43,6 +43,8 @@ int rolling_average(double* array, double* target, unsigned n, unsigned interval
     return 1;
 }
 
+double sec_goal(double ftp, double speed, double tss);
+
 int main(int argc, char **argv){
     FILE *fp;
     char c;
@@ -188,12 +190,13 @@ int main(int argc, char **argv){
     if(array_size > APPEND_LEN * 2)
         limit = array_size - (APPEND_LEN * 2);
 
-    printf("\nTIMESTAMP |  NP   | secs |  FTP  | IF  |  TSS  |  CTL  |  ATL  |  TSB\n");
+    printf("\nTIMESTAMP |  NP   | mins |  FTP  | IF  |  TSS  |  CTL  |  ATL  |  TSB\n");
     for(i = limit; i < array_size; i++){
-        printf("%-10llu %7.3lf %6u %7.3lf %5.3lf %7.3lf %7.3lf %7.3lf %6.3lf\n", ts[i], np[i], duration[i], ftp[i], ifact[i], tss[i], ctl[i], atl[i], tsb[i]);
+        printf("%-10llu %7.3lf %5u %8.3lf %5.3lf %7.3lf %7.3lf %7.3lf %6.3lf\n", ts[i], np[i], duration[i] / 60, ftp[i], ifact[i], tss[i], ctl[i], atl[i], tsb[i]);
         if(i == array_size - APPEND_LEN - 1){
             puts("--------------------------------FUTURE--------------------------------");
         }
+
         if(i == array_size - INVISIBLE_APPENDIX - 1)
             break;
     }
@@ -252,13 +255,8 @@ int main(int argc, char **argv){
 
         double speed = 27.0;
         double tss_goal = tss[array_size - APPEND_LEN];
-        //double time_goal = (tss_goal - 15.543 - 0.0504664 * speed + 0.090868 * curr_ftp) / 1.464918;
 
-        // using http://www.statskingdom.com/410multi_linear_regression.html
-        // TSS = 14.4832 + 0.02335 * SECS - 0.084 * FTP + 0.07032 * SPEED, so
-        // Secs = (8 * (1050 F - 879 * P + 20 * (625 * T - 9052))) / 2335
-        double time_goal = (8.0 * (1050.0 * curr_ftp - 879.0 * speed + 20.0 * (625.0 * tss_goal - 9052.0))) / 2335.0;
-        time_goal /= 60.0;
+        double time_goal = sec_goal(curr_ftp, speed, tss_goal);
 
         if(time_goal >= 1)
             printf("\nRecommendation: %.0lf TSS ≈ %.0lf mins at %.1f km/h.\n", tss_goal, time_goal, speed);
@@ -271,4 +269,9 @@ int main(int argc, char **argv){
     }
     free(ts);
     free(tss);
+}
+
+double sec_goal(double ftp, double speed, double tss){
+    // using http://www.statskingdom.com/410multi_linear_regression.html
+    return ((8.0 * (1050.0 * ftp - 879.0 * speed + 20.0 * (625.0 * tss- 9052.0))) / 2335.0) / 60.0;
 }
