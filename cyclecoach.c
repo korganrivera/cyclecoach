@@ -257,9 +257,12 @@ int main(int argc, char **argv){
         double tss_goal = tss[array_size - APPEND_LEN];
 
         double time_goal = sec_goal(curr_ftp, speed, tss_goal);
+        // round up.
+        if((time_goal - (int)time_goal) >= 0.5)
+            time_goal += 0.5;
 
         if(time_goal >= 1)
-            printf("\nRecommendation: %.0lf TSS ≈ %.0lf mins at %.1f km/h.\n", tss_goal, time_goal, speed);
+            printf("\nRecommendation: %.0lf TSS ≈ %.0lf mins at %.1f km/h.\n", tss_goal, time_goal / 60, speed);
         else
             puts("\nRecommendation: rest day.");
     }
@@ -273,5 +276,5 @@ int main(int argc, char **argv){
 
 double sec_goal(double ftp, double speed, double tss){
     // using http://www.statskingdom.com/410multi_linear_regression.html
-    return ((8.0 * (1050.0 * ftp - 879.0 * speed + 20.0 * (625.0 * tss- 9052.0))) / 2335.0) / 60.0;
+    return ((8.0 * (1050.0 * ftp - 879.0 * speed + 20.0 * (625.0 * tss - 9052.0))) / 2335.0);
 }
