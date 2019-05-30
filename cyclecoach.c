@@ -276,5 +276,9 @@ int main(int argc, char **argv){
 
 double sec_goal(double ftp, double speed, double tss){
     // using http://www.statskingdom.com/410multi_linear_regression.html
-    return ((8.0 * (1050.0 * ftp - 879.0 * speed + 20.0 * (625.0 * tss - 9052.0))) / 2335.0);
+    // last updated: Wed 29 May 2019 09:32:33 PM CDT
+    return (tss + 0.08457 * ftp - 0.07984 * speed - 14.6857) / 0.02234;
+
+
+
 }
