@@ -261,10 +261,24 @@ int main(int argc, char **argv){
         if((time_goal - (int)time_goal) >= 0.5)
             time_goal += 0.5;
 
+        puts("\nRecommendations:");
         if(time_goal >= 1)
-            printf("\nRecommendation: %.0lf TSS ≈ %.0lf mins at %.1f km/h.\n", tss_goal, time_goal / 60, speed);
+            printf("progress: %.0lf TSS ≈ %.0lf mins at %.1f km/h.\n", tss_goal, time_goal / 60, speed);
         else
-            puts("\nRecommendation: rest day.");
+            puts("progress: rest day.");
+
+        // Also calculate a 'maintain goal'. This will be useful if I'm ill but still want to do
+        // the minimum to hold my CTL where it is currently.
+        double curr_ctl = ctl[array_size - APPEND_LEN - 1];
+        time_goal = sec_goal(curr_ftp, speed, curr_ctl);
+        // round up.
+        if((time_goal - (int)time_goal) >= 0.5)
+            time_goal += 0.5;
+
+        if(time_goal >= 1)
+            printf("maintain: %.0lf TSS ≈ %.0lf mins at %.1f km/h.\n", curr_ctl, time_goal / 60, speed);
+        else
+            puts("paintain: rest day.");
     }
     else{
         puts("today is done :)");
