@@ -26,7 +26,7 @@
 // a week of requirements, you need more than 1 week to calculate the TSS values correctly. Therefore,
 // APPEND_LEN (where the calculation is done) is 14 days, but the INVISIBLE_INDEX (the number of days
 // on the end of the appendix that are not displayed because the values will be incorrect) is 7.
-#define APPEND_LEN 21
+#define APPEND_LEN 14
 #define INVISIBLE_APPENDIX 7
 
 int rolling_average(double* array, double* target, unsigned n, unsigned interval){
@@ -184,8 +184,6 @@ int main(int argc, char **argv){
     }
 
     // display it.
-
-    // Only print the last ~20 entries.
     unsigned limit = 0;
     if(array_size > APPEND_LEN * 2)
         limit = array_size - (APPEND_LEN * 2);
@@ -249,13 +247,13 @@ int main(int argc, char **argv){
 
     // If you've already worked out today, then no advice needed. Otherwise,
     // recommend a tss to aim for today.
+    // code below is messy. Fix later.
     long long unsigned current_time = time(NULL) / 86400 * 86400;
     long long unsigned last_time = ts[array_size - APPEND_LEN - 1] / 86400 * 86400;
     if(current_time != last_time){
 
         double speed = 27.0;
         double tss_goal = tss[array_size - APPEND_LEN];
-
         double time_goal = sec_goal(curr_ftp, speed, tss_goal);
         // round up.
         if((time_goal - (int)time_goal) >= 0.5)
@@ -278,7 +276,7 @@ int main(int argc, char **argv){
         if(time_goal >= 1)
             printf("maintain: %.0lf TSS ≈ %.0lf mins at %.1f km/h.\n", curr_ctl, time_goal / 60, speed);
         else
-            puts("paintain: rest day.");
+            puts("maintain: rest day.");
     }
     else{
         puts("today is done :)");
