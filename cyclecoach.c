@@ -289,8 +289,13 @@ int main(int argc, char **argv){
 double sec_goal(double ftp, double speed, double tss){
     // using http://www.statskingdom.com/410multi_linear_regression.html
     // last updated: Wed 29 May 2019 09:32:33 PM CDT
-    return (tss + 0.08457 * ftp - 0.07984 * speed - 14.6857) / 0.02234;
+    // return (tss + 0.08457 * ftp - 0.07984 * speed - 14.6857) / 0.02234;
 
-
-
+    // instead of regression, just realise that you can totally simplify the TSS equation when the speed is constant.
+    //sanity check:
+    if(speed < 1.0)
+        return 0;
+    double denom = 0.00472112 * speed * speed * speed + 3.25888 * speed;
+    denom *= denom;
+    return (tss * 36 * ftp * ftp) / denom;
 }
