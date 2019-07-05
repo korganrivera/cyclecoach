@@ -29,7 +29,7 @@
 #define APPEND_LEN 14
 #define INVISIBLE_APPENDIX 7
 
-int rolling_average(double* array, double* target, unsigned n, unsigned interval){
+void rolling_average(double* array, double* target, unsigned n, unsigned interval){
     for(unsigned i = 0; i < n; i++){
         if(i < interval){
             if(i == 0)
@@ -38,9 +38,24 @@ int rolling_average(double* array, double* target, unsigned n, unsigned interval
                 target[i] = (target[i - 1] * i + array[i]) / (i + 1);
         }
         else
-            target[i] = (target[i - 1] * interval + array[i] - array[i - interval]) / interval;
+            target[i] = target[i - 1]  + (array[i] - array[i - interval]) / interval;
     }
-    return 1;
+}
+
+unsigned line_count(FILE *fp){
+    if(fp == NULL){
+        puts("line_count(): fp is NULL. Why?");
+        exit(1);
+    }
+
+    // Count lines in file.
+    unsigned count = 0;
+    while(!feof(fp)){
+        if(fgetc(fp) == '\n')
+            count++;
+    }
+    rewind(fp);
+    return count;
 }
 
 double sec_goal(double ftp, double speed, double tss);
@@ -83,11 +98,7 @@ int main(int argc, char **argv){
     }
 
     // count lines in tss.log.
-    array_size = 0;
-    while((c = fgetc(fp)) != EOF)
-        if(c == '\n')
-            array_size++;
-    rewind(fp);
+    array_size = line_count(fp);
 
     // skip over header line.
     while((c = fgetc(fp)) != '\n' && c != EOF);
@@ -100,15 +111,16 @@ int main(int argc, char **argv){
     }
 
     // Otherwise, malloc space for tss data + a future block of time.
-    if((ts       = malloc((array_size + APPEND_LEN) * sizeof(long long unsigned))) == NULL){ puts("malloc failed"); exit(1); }
-    if((duration = malloc((array_size + APPEND_LEN) * sizeof(unsigned))) == NULL){ puts("malloc failed"); exit(1); }
-    if((np       = malloc((array_size + APPEND_LEN) * sizeof(double))) == NULL){ puts("malloc failed"); exit(1); }
-    if((ftp      = malloc((array_size + APPEND_LEN) * sizeof(double))) == NULL){ puts("malloc failed"); exit(1); }
-    if((ifact    = malloc((array_size + APPEND_LEN) * sizeof(double))) == NULL){ puts("malloc failed"); exit(1); }
-    if((tss      = malloc((array_size + APPEND_LEN) * sizeof(double))) == NULL){ puts("malloc failed"); exit(1); }
-    if((ctl      = malloc((array_size + APPEND_LEN) * sizeof(double))) == NULL){ puts("malloc failed"); exit(1); }
-    if((atl      = malloc((array_size + APPEND_LEN) * sizeof(double))) == NULL){ puts("malloc failed"); exit(1); }
-    if((tsb      = malloc((array_size + APPEND_LEN) * sizeof(double))) == NULL){ puts("malloc failed"); exit(1); }
+    unsigned new_size = array_size + APPEND_LEN;
+    if((ts       = malloc(new_size * sizeof(long long unsigned))) == NULL){ puts("malloc failed"); exit(1); }
+    if((duration = malloc(new_size * sizeof(unsigned))) == NULL){ puts("malloc failed"); exit(1); }
+    if((np       = malloc(new_size * sizeof(double))) == NULL){ puts("malloc failed"); exit(1); }
+    if((ftp      = malloc(new_size * sizeof(double))) == NULL){ puts("malloc failed"); exit(1); }
+    if((ifact    = malloc(new_size * sizeof(double))) == NULL){ puts("malloc failed"); exit(1); }
+    if((tss      = malloc(new_size * sizeof(double))) == NULL){ puts("malloc failed"); exit(1); }
+    if((ctl      = malloc(new_size * sizeof(double))) == NULL){ puts("malloc failed"); exit(1); }
+    if((atl      = malloc(new_size * sizeof(double))) == NULL){ puts("malloc failed"); exit(1); }
+    if((tsb      = malloc(new_size * sizeof(double))) == NULL){ puts("malloc failed"); exit(1); }
 
     // read tss.log into arrays.
     for(i = 0; i < array_size; i++){
@@ -123,12 +135,11 @@ int main(int argc, char **argv){
     }
     else{
         // find lowest ever fresh-hold
-        unsigned lowest_freshness = 0;
-        for(i = 0; i < array_size; i++){
-            if(tsb[i] < tsb[lowest_freshness])
-                lowest_freshness = i;
+        min_tsb = tsb[0];
+        for(i = 1; i < array_size; i++){
+            if(tsb[i] < min_tsb)
+                min_tsb = tsb[i];
         }
-        min_tsb = tsb[lowest_freshness];
     }
 
     printf("freshhold: %.3lf\n", min_tsb);
@@ -137,7 +148,7 @@ int main(int argc, char **argv){
     double curr_ftp = ftp[array_size - 1];
 
     // amend array_size to include the future.
-    array_size += APPEND_LEN;
+    array_size = new_size;
 
     // figure out highest tss than can be done per day to stay within freshhold.
     for(k = array_size - APPEND_LEN; k < array_size; k++){
@@ -287,12 +298,6 @@ int main(int argc, char **argv){
 }
 
 double sec_goal(double ftp, double speed, double tss){
-    // using http://www.statskingdom.com/410multi_linear_regression.html
-    // last updated: Wed 29 May 2019 09:32:33 PM CDT
-    // return (tss + 0.08457 * ftp - 0.07984 * speed - 14.6857) / 0.02234;
-
-    // instead of regression, just realise that you can totally simplify the TSS equation when the speed is constant.
-    //sanity check:
     if(speed < 1.0)
         return 0;
     double denom = 0.00472112 * speed * speed * speed + 3.25888 * speed;
