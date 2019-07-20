@@ -240,7 +240,7 @@ int main(int argc, char **argv){
 
     // If today's freshhold is the same as the minimum freshhold, then I'll
     // *assume* that today's workout was the one that set it.
-    if(min_tsb == tsb[array_size - APPEND_LEN - 1])
+    if(min_tsb >= tsb[array_size - APPEND_LEN - 1])
         puts("New freshhold! 🌈");
 
     free(duration);
