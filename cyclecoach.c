@@ -134,10 +134,13 @@ int main(int argc, char **argv){
         min_tsb = atof(argv[1]);
     }
     else{
-        // find lowest ever fresh-hold
+        // find lowest ever fresh-hold.
+        // only use values where the next tss isn't zero.
+        // If it is zero, then you might have reached a burnout.
+        // You're only looking for the lowest tsb that you can maintain.
         min_tsb = tsb[0];
         for(i = 1; i < array_size; i++){
-            if(tsb[i] < min_tsb)
+            if(tsb[i] < min_tsb && (i + 1) < array_size && tss[i + 1] > 1)
                 min_tsb = tsb[i];
         }
     }
