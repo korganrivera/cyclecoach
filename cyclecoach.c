@@ -60,6 +60,9 @@ unsigned line_count(FILE *fp){
 
 double sec_goal(double ftp, double speed, double tss);
 
+// takes UNIX timestamp and prints it as a date in yyyy-mm-dd format.
+void tstodate(time_t t);
+
 int main(int argc, char **argv){
     FILE *fp;
     char c;
@@ -204,7 +207,11 @@ int main(int argc, char **argv){
 
     printf("\nTIMESTAMP |  NP   | mins |  FTP  | IF  |  TSS  |  CTL  |  ATL  |  TSB\n");
     for(i = limit; i < array_size; i++){
-        printf("%-10llu %7.3lf %5u %8.3lf %5.3lf %7.3lf %7.3lf %7.3lf %6.3lf\n", ts[i], np[i], duration[i] / 60, ftp[i], ifact[i], tss[i], ctl[i], atl[i], tsb[i]);
+
+        // print timestamp as date.
+        tstodate(ts[i]);
+
+        printf("%7.3lf %5u %8.3lf %5.3lf %7.3lf %7.3lf %7.3lf %6.3lf\n", np[i], duration[i] / 60, ftp[i], ifact[i], tss[i], ctl[i], atl[i], tsb[i]);
         if(i == array_size - APPEND_LEN - 1){
             puts("--------------------------------FUTURE--------------------------------");
         }
@@ -266,7 +273,7 @@ int main(int argc, char **argv){
     long long unsigned last_time = ts[array_size - APPEND_LEN - 1] / 86400 * 86400;
     if(current_time != last_time){
 
-        double speed = 27.0;
+        double speed = 25.0;
         double tss_goal = tss[array_size - APPEND_LEN];
         double time_goal = sec_goal(curr_ftp, speed, tss_goal);
         // round up.
@@ -306,4 +313,15 @@ double sec_goal(double ftp, double speed, double tss){
     double denom = 0.00472112 * speed * speed * speed + 3.25888 * speed;
     denom *= denom;
     return (tss * 36 * ftp * ftp) / denom;
+}
+
+
+void tstodate(time_t t){
+    const char *format = "%Y-%m-%d";
+    struct tm lt;
+    char res[32];
+
+    localtime_r(&t, &lt);
+    strftime(res, sizeof(res), format, &lt);
+    printf("%s ", res);
 }
