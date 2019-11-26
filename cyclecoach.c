@@ -273,7 +273,7 @@ int main(int argc, char **argv){
     long long unsigned last_time = ts[array_size - APPEND_LEN - 1] / 86400 * 86400;
     if(current_time != last_time){
 
-        double speed = 25.0;
+        double speed = 26.0;
         double tss_goal = tss[array_size - APPEND_LEN];
         double time_goal = sec_goal(curr_ftp, speed, tss_goal);
         // round up.
