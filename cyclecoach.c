@@ -137,12 +137,22 @@ int main(int argc, char **argv){
         min_tsb = atof(argv[1]);
     }
     else{
-        // find lowest ever fresh-hold.
-        // only use values where the next tss isn't zero.
-        // If it is zero, then you might have reached a burnout.
-        // You're only looking for the lowest tsb that you can maintain.
-        min_tsb = tsb[0];
-        for(i = 1; i < array_size; i++){
+
+        // find lowest fresh-hold within last 42 days. Only use values where
+        // the next tss isn't zero; if it is zero, then you might have reached
+        // a burnout. You're only looking for the lowest tsb that you can
+        // maintain. This part could be made more sophisticated later, say by
+        // finding freshholds that can be maintained for a minimum amount of
+        // time.
+
+        unsigned start;
+        if(array_size < 42)
+            start = 0;
+        else
+            start = array_size - 42;
+
+        min_tsb = tsb[start];
+        for(i = start + 1; i < array_size; i++){
             if(tsb[i] < min_tsb && (i + 1) < array_size && tss[i + 1] > 1)
                 min_tsb = tsb[i];
         }
