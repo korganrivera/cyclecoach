@@ -59,6 +59,7 @@ unsigned line_count(FILE *fp){
 }
 
 double sec_goal(double ftp, double speed, double tss);
+void recommendation(double curr_ftp, double speed, double v, char* str);
 
 // takes UNIX timestamp and prints it as a date in yyyy-mm-dd format.
 void tstodate(time_t t);
@@ -145,10 +146,8 @@ int main(int argc, char **argv){
         // finding freshholds that can be maintained for a minimum amount of
         // time.
 
-        unsigned start;
-        if(array_size < 42)
-            start = 0;
-        else
+        unsigned start = 0;
+        if(array_size >= 42)
             start = array_size - 42;
 
         min_tsb = tsb[start];
@@ -272,42 +271,20 @@ int main(int argc, char **argv){
     free(tsb);
 
     // print a basic report.
-    // fix this: gives wrong report if today doesn't have a workout.
-    // instead, maybe compare last weeks average with this week's.
-    // or, compare linear model of this and last week's fitness.
-
     // If you've already worked out today, then no advice needed. Otherwise,
     // recommend a tss to aim for today.
-    // code below is messy. Fix later.
+
     long long unsigned current_time = time(NULL) / 86400 * 86400;
     long long unsigned last_time = ts[array_size - APPEND_LEN - 1] / 86400 * 86400;
     if(current_time != last_time){
 
-        double speed = 26.0;
+        double speed = 26.0; // It would be better if this were set dynamically, but oh well.
         double tss_goal = tss[array_size - APPEND_LEN];
-        double time_goal = sec_goal(curr_ftp, speed, tss_goal);
-        // round up.
-        if((time_goal - (int)time_goal) >= 0.5)
-            time_goal += 0.5;
+        double curr_ctl = ctl[array_size - APPEND_LEN - 1];
 
         puts("\nRecommendations:");
-        if(time_goal >= 1)
-            printf("progress: %.0lf TSS ≈ %.0lf mins at %.1f km/h.\n", tss_goal, time_goal / 60, speed);
-        else
-            puts("progress: rest day.");
-
-        // Also calculate a 'maintain goal'. This will be useful if I'm ill but still want to do
-        // the minimum to hold my CTL where it is currently.
-        double curr_ctl = ctl[array_size - APPEND_LEN - 1];
-        time_goal = sec_goal(curr_ftp, speed, curr_ctl);
-        // round up.
-        if((time_goal - (int)time_goal) >= 0.5)
-            time_goal += 0.5;
-
-        if(time_goal >= 1)
-            printf("maintain: %.0lf TSS ≈ %.0lf mins at %.1f km/h.\n", curr_ctl, time_goal / 60, speed);
-        else
-            puts("maintain: rest day.");
+        recommendation(curr_ftp, speed, tss_goal, "progress");
+        recommendation(curr_ftp, speed, curr_ctl, "maintain");
     }
     else{
         puts("today is done :)");
@@ -334,4 +311,21 @@ void tstodate(time_t t){
     localtime_r(&t, &lt);
     strftime(res, sizeof(res), format, &lt);
     printf("%s ", res);
+}
+
+// Given ftp, speed, and tss or fitness, will tell you how long you need to
+// cycle to achieve it.
+void recommendation(double curr_ftp, double speed, double v, char* str){
+    double time_goal = sec_goal(curr_ftp, speed, v);
+
+    // round up.
+    if((time_goal - (int)time_goal) >= 0.5)
+        time_goal += 0.5;
+
+    printf(str);
+    printf(": ");
+    if(time_goal >= 60)
+            printf("%.0lf TSS ≈ %.0lf mins at %.1f km/h.\n", v, time_goal / 60, speed);
+    else
+        printf("rest day");
 }
