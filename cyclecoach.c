@@ -278,13 +278,20 @@ int main(int argc, char **argv){
     long long unsigned last_time = ts[array_size - APPEND_LEN - 1] / 86400 * 86400;
     if(current_time != last_time){
 
-        double speed = 26.0; // It would be better if this were set dynamically, but oh well.
+        double speed = 25.2; // It would be better if this were set dynamically, but oh well.
         double tss_goal = tss[array_size - APPEND_LEN];
         double curr_ctl = ctl[array_size - APPEND_LEN - 1];
 
-        puts("\nRecommendations:");
+        printf("\nRecommendations @ %.1f:\n", speed);
         recommendation(curr_ftp, speed, tss_goal, "progress");
         recommendation(curr_ftp, speed, curr_ctl, "maintain");
+
+        speed = 27;
+        printf("\nRecommendations @ %.1f:\n", speed);
+        recommendation(curr_ftp, speed, tss_goal, "progress");
+        recommendation(curr_ftp, speed, curr_ctl, "maintain");
+
+        putchar('\n');
     }
     else{
         puts("today is done :)");
