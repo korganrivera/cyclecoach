@@ -282,16 +282,14 @@ int main(int argc, char **argv){
         double tss_goal = tss[array_size - APPEND_LEN];
         double curr_ctl = ctl[array_size - APPEND_LEN - 1];
 
-        printf("\nRecommendations @ %.1f:\n", speed);
-        recommendation(curr_ftp, speed, tss_goal, "progress");
-        recommendation(curr_ftp, speed, curr_ctl, "maintain");
+        printf("\nRecommendations @ %.1f:", speed);
+        recommendation(curr_ftp, speed, tss_goal, "\nprogress");
+        recommendation(curr_ftp, speed, curr_ctl, "\nmaintain");
 
         speed = 27;
-        printf("\nRecommendations @ %.1f:\n", speed);
-        recommendation(curr_ftp, speed, tss_goal, "progress");
-        recommendation(curr_ftp, speed, curr_ctl, "maintain");
-
-        putchar('\n');
+        printf("\nRecommendations @ %.1f:", speed);
+        recommendation(curr_ftp, speed, tss_goal, "\nprogress");
+        recommendation(curr_ftp, speed, curr_ctl, "\nmaintain");
     }
     else{
         puts("today is done :)");
@@ -334,5 +332,5 @@ void recommendation(double curr_ftp, double speed, double v, char* str){
     if(time_goal >= 60)
             printf("%.0lf TSS ≈ %.0lf mins at %.1f km/h.\n", v, time_goal / 60, speed);
     else
-        printf("rest day\n");
+        printf("rest day");
 }
