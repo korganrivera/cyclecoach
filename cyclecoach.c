@@ -334,5 +334,5 @@ void recommendation(double curr_ftp, double speed, double v, char* str){
     if(time_goal >= 60)
             printf("%.0lf TSS ≈ %.0lf mins at %.1f km/h.\n", v, time_goal / 60, speed);
     else
-        printf("rest day");
+        printf("rest day\n");
 }
