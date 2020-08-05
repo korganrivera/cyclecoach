@@ -21,11 +21,14 @@
 #include <string.h>
 #include <assert.h>
 
-// When you project what your future TSS values should be, you need to add an appendix onto the array read
-// from the file, and calculate the required TSS for each of those future days. Even if you only display
-// a week of requirements, you need more than 1 week to calculate the TSS values correctly. Therefore,
-// APPEND_LEN (where the calculation is done) is 14 days, but the INVISIBLE_INDEX (the number of days
-// on the end of the appendix that are not displayed because the values will be incorrect) is 7.
+// When you project what your future TSS values should be, you need to add an
+// appendix onto the array read from the file, and calculate the required TSS
+// for each of those future days. Even if you only display a week of
+// requirements, you need more than 1 week to calculate the TSS values
+// correctly. Therefore, APPEND_LEN (where the calculation is done) is 14 days,
+// but the INVISIBLE_INDEX (the number of days on the end of the appendix that
+// are not displayed because the values will be incorrect) is 7.
+
 #define APPEND_LEN 14
 #define INVISIBLE_APPENDIX 7
 
@@ -330,7 +333,7 @@ void recommendation(double curr_ftp, double speed, double v, char* str){
     printf(str);
     printf(": ");
     if(time_goal >= 60)
-            printf("%.0lf TSS ≈ %.0lf mins at %.1f km/h.\n", v, time_goal / 60, speed);
+            printf("%.0lf TSS ≈ %.0lf mins at %.1f km/h.", v, time_goal / 60, speed);
     else
         printf("rest day");
 }
